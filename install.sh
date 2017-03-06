@@ -7,5 +7,5 @@ fi
 
 hadoop_version = $1
 spark_version = $2
-echo $hadoop_version
-echo $spark_version
+echo "$hadoop_version"
+echo "$spark_version"
