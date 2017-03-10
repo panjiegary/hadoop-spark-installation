@@ -1,0 +1,37 @@
+---
+# Install Hadoop and Spark
+# ==================
+
+- hosts: all
+  user: ansible
+  sudo: true
+  vars:
+    download_folder: /opt
+    file: /usr/local/opt/hadoop-2.7.3/etc/hadoop/hadoop-env.sh
+    hfile: /usr/local/opt/spark-2.1.0-bin-hadoop2.7/etc/spark/spark-env.sh
+    jpath: export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-x64/jre/
+    hpath: export HADOOP_CONF_DIR="/usr/local/opt/hadoop-2.7.3/etc/hadoop/"
+  tasks: 
+    - name: install java
+      apt: name= openjdk8-jre state=present update_cache=yes
+
+    - name: download Hadoop
+      get_url: http://www-us.apache.org/dist/hadoop/common/hadoop-2.7.3/hadoop-2.7.3.tar.gz
+      dest: /usr/local/{{download_folder}}
+      
+    - name: Unzip Hadoop
+      unarchive: copy=no src=/usr/local/opt/hadoop-2.7.3.tar.gz dest=/usr/local/{{download_folder}}
+      
+    - name: Modify the Hadoop configuration
+      lineinfile: dest="{{file}}" regexp="^{{jpath}}" line="{{jpath}}"
+
+    # Install Spark
+    - name: Fetch Spark from URL
+      get_url: https://archive.apache.org/dist/spark/spark-2.1.0/spark-2.1.0-bin-hadoop2.7.tgz
+      dest: /usr/local/{{download_folder}}
+      
+    - name: Unzip Spark
+      unarchive: copy=no src=/usr/local/opt/spark-2.1.0-bin-hadoop2.7.tgz dest=/usr/local/{{download_folder}}
+      
+    - name: Modify spark-env.sh configuration
+      lineinfile: dest="{{hfile}}" regexp="^{{hpath}}" line="{{hpath}}"
