@@ -26,7 +26,7 @@ wget http://www-us.apache.org/dist/hadoop/common/hadoop-2.7.3/hadoop-2.7.3.tar.g
 
 tar -xzvf hadoop-2.7.3.tar.gz  
 
-mkdir hadoop  
+sudo mkdir hadoop  
 
 mv hadoop-2.7.3/* hadoop/  
 
@@ -39,7 +39,7 @@ EOL
 wget https://archive.apache.org/dist/spark/spark-2.1.0/spark-2.1.0-bin-hadoop2.7.tgz
 
 tar -zxvf spark-2.1.0-bin-hadoop2.7.tgz
-mkdir /usr/local/spark/
+sudo mkdir spark
 mv spark-2.1.0-bin-hadoop2.7/* /usr/local/spark/
 
 cat >> ~/.bashrc << EOL
