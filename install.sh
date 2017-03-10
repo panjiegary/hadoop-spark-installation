@@ -1,123 +1,53 @@
 #!/bin/bash
 
-echo "Which version of Hadoop do you want to install? (Default 2.7.3):"
-read hadoop_version
-
-echo "Which version of Spark do you want to install? (Default 2.1.0):"
-read spark_version
-
-echo "Hadoop:$hadoop_version"
-echo "Spark:$spark_version"
-
-curl --silent http://www-us.apache.org/dist/hadoop/common/ | grep hadoop- | sed 's/.*>hadoop-\(.*\)\/<.*/\1/g'
-
-http://d3kbcqa49mib13.cloudfront.net/spark-2.0.2-bin-hadoop2.4.tgz
-
-# check input arguments
-if [ "$#" -ne 2 ]; then
-    echo "Please specify version of Hadoop and Spark" && exit 1
-fi
-
-hadoop_version=$1
-spark_version=$2
-echo "Hadoop:$hadoop_version"
-echo "Spark:$spark_version"
-# purge existing jdk if exists
-sudo apt-get purge openjdk-\* -y   --assume-yes
 echo "Updating repository..."  
-sudo apt-get update --assume-yes
-# install java
-echo "Installing  Java....."    
-sudo apt-get install default-jdk -y
-echo "Installation completed...."  
-echo "Installed java version is...."  
-java -version
-# install hadoop
-echo "Installing Hadoop"
-cd /usr/local  
-wget http://www-us.apache.org/dist/hadoop/common/hadoop-$hadoop_version/hadoop-$hadoop_version.tar.gz
-tar xvf hadoop-$hadoop_version.tar.gz
-mkdir hadoop  
-mv hadoop-$hadoop_version/* hadoop/
 
-echo "Now script is updating Bashrc for export Path etc"  
-cat >> ~/.bashrc << EOL  
-export HADOOP_HOME=/usr/local/hadoop  
-export HADOOP_MAPRED_HOME=/usr/local/hadoop  
-export HADOOP_COMMON_HOME=/usr/local/hadoop  
-export HADOOP_HDFS_HOME=/usr/local/hadoop  
-export YARN_HOME=/usr/local/hadoop  
-export HADOOP_COMMON_LIB_NATIVE_DIR=/usr/local/hadoop/lib/native  
-export JAVA_HOME=/usr/  
-export PATH=$PATH:/usr/local/hadoop/sbin:/usr/local/hadoop/bin:$(readlink -f /usr/bin/java | sed "s:bin/java::")/bin  
-EOL  
-cat ~/.bashrc  
-source ~/.bashrc  
+sudo apt-get update --assume-yes  
+
+echo "Installing  Java....."    
+sudo apt-get install default-jdk -y  
+echo "Installation completed...."  
+
+echo "Installed java version is...."  
+
+java -version  
+
+#Installing SSH
+echo "Installing SSH"
+sudo apt-get install openssh-server -y  
+
+/etc/init.d/ssh status  
+
+/etc/init.d/ssh start  
+
+echo "Installing Hadoop"
+cd /usr/local
+wget http://www-us.apache.org/dist/hadoop/common/hadoop-2.7.3/hadoop-2.7.3.tar.gz
+
+tar -xzvf hadoop-2.7.3.tar.gz  
+
+mkdir hadoop  
+
+mv hadoop-2.7.3/* hadoop/  
 
 echo "Now script is updating hadoop configuration files"  
+
 cat >> /usr/local/hadoop/etc/hadoop/hadoop-env.sh << EOL  
 export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")  
-EOL 
-
-cd /usr/local/hadoop/etc/hadoop 
-cat > core-site.xml << EOL  
-<configuration>  
-<property>  
-<name>fs.default.name</name>  
-<value>hdfs://localhost:9000</value>  
-</property>  
-</configuration>  
-EOL 
-
-cp mapred-site.xml.template mapred-site.xml  
-cat > mapred-site.xml << EOL  
-<configuration>  
-<property>  
-<name>mapreduce.framework.name</name>  
-<value>yarn</value>  
-</property>  
-</configuration>  
 EOL  
 
-cat > yarn-site.xml << EOL  
-<configuration>  
-<property>  
-<name>yarn.nodemanager.aux-services</name>  
-<value>mapreduce_shuffle</value>  
-</property>  
-</configuration>  
-EOL  
+wget https://archive.apache.org/dist/spark/spark-2.1.0/spark-2.1.0-bin-hadoop2.7.tgz
 
-cat > hdfs-site.xml << EOL  
-<configuration>  
-<property>  
-<name>dfs.replication</name>  
-<value>1</value>  
-</property>  
-<property>  
-<name>dfs.name.dir</name>  
-<value>file:///home/hadoop/hadoopinfra/hdfs/namenode </value>  
-</property>  
-<property>  
-<name>dfs.data.dir</name>  
-<value>file:///home/hadoop/hadoopinfra/hdfs/datanode </value >  
-</property>  
-</configuration>  
-EOL  
+tar -zxvf spark-2.1.0-bin-hadoop2.7.tgz
+mkdir /usr/local/spark/
+mv spark-2.1.0-bin-hadoop2.7/* /usr/local/spark/
 
-echo "Completed process Now Reloading Bash Profile...."  
-cd ~  
+cat >> ~/.bashrc << EOL
+export SPARK_HOME=/usr/local/spark/
+EOL
 
-echo "You may require reloading bash profile, you can reload using following command."  
-echo "source ~/.bashrc"  
+source ~/.bashrc
 
-echo "To Start you need to format Name Node Once you can use following command."  
-echo "hdfs namenode -format"  
+cd  /usr/local/spark
 
-echo "Hadoop configured. now you can start hadoop using following commands. "  
-echo "start-dfs.sh"  
-echo "start-yarn.sh"  
-
-echo "To stop hadoop use following scripts."  
-echo "stop-dfs.sh"  
-echo "stop-yarn.sh"
+echo "Spark has been installed! "
