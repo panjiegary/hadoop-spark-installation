@@ -1,5 +1,18 @@
 #!/bin/bash
 
+echo "Which version of Hadoop do you want to install? (Default 2.7.3):"
+read hadoop_version
+
+echo "Which version of Spark do you want to install? (Default 2.1.0):"
+read spark_version
+
+echo "Hadoop:$hadoop_version"
+echo "Spark:$spark_version"
+
+curl --silent http://www-us.apache.org/dist/hadoop/common/ | grep hadoop- | sed 's/.*>hadoop-\(.*\)\/<.*/\1/g'
+
+http://d3kbcqa49mib13.cloudfront.net/spark-2.0.2-bin-hadoop2.4.tgz
+
 # check input arguments
 if [ "$#" -ne 2 ]; then
     echo "Please specify version of Hadoop and Spark" && exit 1
